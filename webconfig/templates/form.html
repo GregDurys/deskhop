@@ -20,6 +20,10 @@
     {{ label(item, class='') }}
     {{ input(item) }} data-fw-ver readonly />
 
+  {% elif item.get("elem") == "vid_pid" %}
+    {{ label(item, add=':') }}
+    {{ input(item, class='content api') }} data-vid-pid placeholder="vvvv:pppp" pattern="[0-9a-fA-F]{1,4}:[0-9a-fA-F]{1,4}" />
+
   {% elif item.get("elem") == "label" %}
     {{ label(item, class='') }}
 

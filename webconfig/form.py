@@ -36,6 +36,10 @@ CONFIG_ = [
     FormField(83, "Gaming Mode Default ON", None, {}, "uint8", "checkbox"),
     FormField(77, "Jump Threshold", 0, {"min": 0, "max": 3000}, "uint16", "range"),
 
+    FormField(1005, "Swap Left/Right Buttons (mouse VID:PID, e.g. 046d:c077)", elem="label"),
+    FormField(90, "Mouse 1", None, {}, "uint32", "vid_pid"),
+    FormField(91, "Mouse 2", None, {}, "uint32", "vid_pid"),
+
     FormField(1002, "Keyboard", elem="label"),
     FormField(72, "Force KBD Boot Protocol", None, {}, "uint8", "checkbox"),
     FormField(73, "KBD LED as Indicator", None, {}, "uint8", "checkbox"),

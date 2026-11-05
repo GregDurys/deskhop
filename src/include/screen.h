@@ -33,6 +33,9 @@ typedef struct {
 typedef struct {
     uint8_t mode;
     uint8_t only_if_inactive;
+    /* Mouse that gets left and right buttons swapped, as (VID << 16) | PID, 0 = none.
+       Not screensaver related, one slot per output just uses the padding here. */
+    uint32_t swap_buttons_dev;
     uint64_t idle_time_us;
     uint64_t max_time_us;
 } screensaver_t;

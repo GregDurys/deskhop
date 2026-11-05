@@ -68,6 +68,10 @@ const field_map_t api_field_map[] = {
     { 82, true,  UINT8,  1, offsetof(device_t, relative_mouse) },
     { 83, false, UINT8,  1, offsetof(device_t, config.gaming_mode_default) },
     { 84, false, UINT8,  1, offsetof(device_t, config.led_mode) },
+
+    /* Swapped-button mice, two slots stored in the output structs (not output specific) */
+    { 90, false, UINT32, 4, offsetof(device_t, config.output[0].screensaver.swap_buttons_dev) },
+    { 91, false, UINT32, 4, offsetof(device_t, config.output[1].screensaver.swap_buttons_dev) },
 };
 
 const field_map_t* get_field_map_entry(uint32_t index) {

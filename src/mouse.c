@@ -305,6 +305,19 @@ static inline bool extract_value(bool uses_id, int32_t *dst, report_val_t *src, 
     return true;
 }
 
+/* Swap left and right buttons (bits 0 and 1) if this mouse is listed in the config */
+int32_t swap_buttons_if_listed(int32_t buttons, device_t *state, hid_interface_t *iface) {
+    if (!iface->vid_pid)
+        return buttons;
+
+    for (int i = 0; i < NUM_SCREENS; i++) {
+        if (state->config.output[i].screensaver.swap_buttons_dev == iface->vid_pid)
+            return (buttons & ~0x3) | ((buttons & 0x1) << 1) | ((buttons & 0x2) >> 1);
+    }
+
+    return buttons;
+}
+
 void extract_report_values(uint8_t *raw_report, int len, device_t *state, mouse_values_t *values, hid_interface_t *iface) {
     /* Interpret values depending on the current protocol used. */
     if (iface->protocol == HID_PROTOCOL_BOOT) {
@@ -314,7 +327,7 @@ void extract_report_values(uint8_t *raw_report, int len, device_t *state, mouse_
         values->move_y  = mouse_report->y;
         values->wheel   = mouse_report->wheel;
         values->pan     = mouse_report->pan;
-        values->buttons = mouse_report->buttons;
+        values->buttons = swap_buttons_if_listed(mouse_report->buttons, state, iface);
         return;
     }
     mouse_t *mouse = &iface->mouse;
@@ -325,7 +338,10 @@ void extract_report_values(uint8_t *raw_report, int len, device_t *state, mouse_
     extract_value(uses_id, &values->wheel, &mouse->wheel, raw_report, len);
     extract_value(uses_id, &values->pan, &mouse->pan, raw_report, len);
 
-    if (!extract_value(uses_id, &values->buttons, &mouse->buttons, raw_report, len)) {
+    /* Fallback state is already swapped, so only swap freshly extracted buttons */
+    if (extract_value(uses_id, &values->buttons, &mouse->buttons, raw_report, len)) {
+        values->buttons = swap_buttons_if_listed(values->buttons, state, iface);
+    } else {
         values->buttons = state->mouse_buttons;
     }
 }

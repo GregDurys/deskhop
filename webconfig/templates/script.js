@@ -50,6 +50,17 @@ function scaleOf(element) {
   return Number(element.getAttribute('data-scale')) || 1;
 }
 
+/* USB device IDs are shown as "vvvv:pppp" and stored as (VID << 16) | PID, 0 = empty */
+function parseVidPid(text) {
+  const match = /^\s*([0-9a-f]{1,4}):([0-9a-f]{1,4})\s*$/i.exec(text);
+  return match ? ((parseInt(match[1], 16) << 16) | parseInt(match[2], 16)) >>> 0 : 0;
+}
+
+function formatVidPid(value) {
+  const hex4 = (v) => v.toString(16).padStart(4, '0');
+  return value ? `${hex4(value >>> 16)}:${hex4(value & 0xffff)}` : '';
+}
+
 function packValue(element, key, dataType, buffer) {
   const dataOffset = 1;
   var buffer = new ArrayBuffer(8);
@@ -69,6 +80,8 @@ function packValue(element, key, dataType, buffer) {
     const method = methods[dataType];
     if (element.type === 'checkbox')
       view.setUint8(dataOffset, element.checked ? 1 : 0, true);
+    else if (element.hasAttribute('data-vid-pid'))
+      view.setUint32(dataOffset, parseVidPid(element.value), true);
     else
       method.call(view, dataOffset, element.value * scaleOf(element), true);
   }
@@ -157,6 +170,9 @@ function updateElement(key, event) {
     if (element.hasAttribute('data-hex'))
       setValue(element, parseInt(value).toString(16));
 
+    if (element.hasAttribute('data-vid-pid'))
+      setValue(element, formatVidPid(value));
+
     if (element.hasAttribute('data-fw-ver')) {
       /* u16 version = major * 1000 + minor + 100; */
       const major = Math.floor((value - 100) / 1000);
@@ -194,6 +210,10 @@ async function valueChangedHandler(element) {
 
   var origValue = element.getAttribute('fetched-value');
   var newValue = getValue(element);
+
+  /* Don't send a half-typed device ID, it would be stored as an empty slot */
+  if (element.hasAttribute('data-vid-pid') && !element.checkValidity())
+    return;
 
   if (origValue != newValue) {
     uintBuffer = packValue(element, key, dataType);

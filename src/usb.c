@@ -205,6 +205,11 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const *desc_re
 
     iface->protocol = tuh_hid_get_protocol(dev_addr, instance);
 
+    /* Remember which device this is, so per-device settings (e.g. swapped buttons) can apply */
+    uint16_t vid = 0, pid = 0;
+    tuh_vid_pid_get(dev_addr, &vid, &pid);
+    iface->vid_pid = ((uint32_t)vid << 16) | pid;
+
     /* Parse the report descriptor into our internal structure. */
     parse_report_descriptor(iface, desc_report, desc_len);
 

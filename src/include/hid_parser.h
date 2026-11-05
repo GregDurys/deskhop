@@ -169,6 +169,7 @@ struct hid_interface_t {
     uint8_t report_handler[REPORT_ID_MAP_SIZE];
     uint8_t protocol;
     bool uses_report_id;
+    uint32_t vid_pid; /* (VID << 16) | PID of the device this interface belongs to */
 };
 
 typedef struct {
